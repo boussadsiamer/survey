@@ -1,416 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Household Waste & Recycling — Algiers Survey</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
-    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
-  </head>
-  <body>
-    <main class="container">
-      <section class="card">
-        <h2>Introduction / Consent</h2>
-        <p>
-          Project: Household Waste &amp; Recycling — Algiers. We are students collecting anonymized answers about household waste, recycling habits, and awareness of poverty in the community. It takes about 5–7 minutes. Your answers are private and stored only for research. Participation is voluntary.
-        </p>
-        <label class="consent">
-          <input type="checkbox" id="consent" />
-          <span>I agree to participate</span>
-        </label>
-      </section>
 
-      <form id="survey-form" novalidate>
-        <fieldset id="survey-fieldset" disabled>
-          <div class="steps">
-            <section class="card step active" data-step="A1">
-              <p class="step-label">Section A · Demographics</p>
-              <h2>Commune / neighborhood</h2>
-              <p class="helper">Select your location starting from continent down to the local commune.</p>
-              <label class="field" for="continent-select">
-                <span>Continent</span>
-                <select id="continent-select" required>
-                  <option value="">Select continent</option>
-                </select>
-              </label>
-              <label class="field" for="country-select">
-                <span>Country</span>
-                <select id="country-select" disabled required>
-                  <option value="">Select country</option>
-                </select>
-              </label>
-              <label class="field" for="region-select">
-                <span>Province / commune (optional)</span>
-                <select id="region-select" disabled>
-                  <option value="">Select province or commune</option>
-                </select>
-              </label>
-              <input type="hidden" id="location-summary" name="A1" required />
-              <div class="nav-buttons">
-                <button type="button" class="next-step">Next</button>
-              </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco-Survey</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Verdana&display=swap"
+        rel="stylesheet">
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="app-container">
+        <header class="window-header">
+            <span class="window-title"></span> <!-- Title Placeholder -->
+            <div class="window-controls">
+                <div class="control-box">_</div>
+                <div class="control-box">□</div>
+                <div class="control-box">×</div>
+            </div>
+        </header>
+
+        <main>
+            <!-- View 1: Intro -->
+            <section id="intro-view" class="active-view">
+                <div class="content-box">
+                    <h1>Welcome</h1>
+                    <p>Help us understand waste habits in Algeria.</p>
+                    <p>Your data helps build a cleaner future.</p>
+                    <br>
+                    <button id="start-btn" class="retro-btn">Start Survey</button>
+                </div>
             </section>
 
-            <section class="card step" data-step="A2">
-              <p class="step-label">Section A · Demographics</p>
-              <h2>Age group</h2>
-              <label for="age-group" class="field">
-                <span>Select your age group.</span>
-                <select id="age-group" name="A2" required>
-                  <option value="">Select one</option>
-                  <option>Under 18</option>
-                  <option>18–24</option>
-                  <option>25–34</option>
-                  <option>35–49</option>
-                  <option>50+</option>
-                </select>
-              </label>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
+            <!-- View 2: Survey -->
+            <section id="survey-view" class="hidden">
+                <div class="progress-bar-container">
+                    <div id="progress-bar" class="progress-bar"></div>
+                </div>
+
+                <div id="question-container" class="content-box">
+                    <!-- Dynamic Question Content -->
+                    <h2 id="question-text">Question goes here...</h2>
+                    <p id="question-context" class="context-text">Context goes here...</p>
+
+                    <div id="options-container">
+                        <!-- Options injected by JS -->
+                    </div>
+                </div>
+
+                <div class="nav-controls">
+                    <button id="prev-btn" class="retro-btn hidden">Back</button>
+                    <button id="next-btn" class="retro-btn disabled">Next</button>
+                </div>
             </section>
 
-            <section class="card step" data-step="A3">
-              <p class="step-label">Section A · Demographics</p>
-              <h2>Household size</h2>
-              <label for="household-size" class="field">
-                <span>How many people live in your household?</span>
-                <input type="number" id="household-size" name="A3" min="1" required />
-              </label>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
-            </section>
+            <!-- View 3: Results -->
+            <section id="results-view" class="hidden">
+                <div class="content-box">
+                    <h2>Community Results</h2>
+                    <p>Thank you for participating!</p>
 
-            <section class="card step" data-step="A4">
-              <p class="step-label">Section A · Demographics</p>
-              <h2>Access to yard or balcony</h2>
-              <fieldset class="field">
-                <legend class="visually-hidden">Do you have access to a yard/balcony suitable for composting?</legend>
-                <label><input type="radio" name="A4" value="true" required /> Yes</label>
-                <label><input type="radio" name="A4" value="false" /> No</label>
-              </fieldset>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
-            </section>
+                    <div class="chart-container">
+                        <canvas id="resultsChart"></canvas>
+                    </div>
 
-            <section class="card step" data-step="B1">
-              <p class="step-label">Section B · Current Habits</p>
-              <h2>How often do you separate recyclables?</h2>
-              <fieldset class="field">
-                <legend class="visually-hidden">How often do you separate recyclables at home?</legend>
-                <label><input type="radio" name="B1" value="Always" required /> Always</label>
-                <label><input type="radio" name="B1" value="Often" /> Often</label>
-                <label><input type="radio" name="B1" value="Sometimes" /> Sometimes</label>
-                <label><input type="radio" name="B1" value="Rarely" /> Rarely</label>
-                <label><input type="radio" name="B1" value="Never" /> Never</label>
-              </fieldset>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
+                    <button onclick="location.reload()" class="retro-btn">Restart</button>
+                </div>
             </section>
+        </main>
 
-            <section class="card step" data-step="B2">
-              <p class="step-label">Section B · Current Habits</p>
-              <h2>Which materials do you separate?</h2>
-              <p class="helper">Select all materials you already sort at home.</p>
-              <fieldset class="field">
-                <legend class="visually-hidden">Materials separated</legend>
-                <label><input type="checkbox" value="Paper/cardboard" name="B2" /> Paper/cardboard</label>
-                <label><input type="checkbox" value="PET plastic bottles" name="B2" /> PET plastic bottles</label>
-                <label><input type="checkbox" value="Plastic containers (detergent/shampoo)" name="B2" /> Plastic containers (detergent/shampoo)</label>
-                <label><input type="checkbox" value="Glass bottles/jars" name="B2" /> Glass bottles/jars</label>
-                <label><input type="checkbox" value="Metal cans" name="B2" /> Metal cans</label>
-                <label><input type="checkbox" value="Clothes/textiles" name="B2" /> Clothes/textiles</label>
-                <label><input type="checkbox" value="Electronics" name="B2" /> Electronics</label>
-                <label><input type="checkbox" value="Organic waste" name="B2" /> Organic waste</label>
-              </fieldset>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
-            </section>
-
-            <section class="card step" data-step="B3">
-              <p class="step-label">Section B · Current Habits</p>
-              <h2>Where do you usually dispose recyclables?</h2>
-              <fieldset class="field">
-                <legend class="visually-hidden">Where recyclables go</legend>
-                <label><input type="radio" name="B3" value="Neighborhood collectors" required /> To neighborhood collectors</label>
-                <label><input type="radio" name="B3" value="Scrap yard" /> Scrap yard</label>
-                <label><input type="radio" name="B3" value="Charity/association" /> Charity/association</label>
-                <label><input type="radio" name="B3" value="Municipal mixed bin" /> Municipal mixed bin</label>
-                <label><input type="radio" name="B3" value="Normal trash" /> I throw everything in normal trash</label>
-              </fieldset>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
-            </section>
-
-            <section class="card step" data-step="B4">
-              <p class="step-label">Section B · Current Habits</p>
-              <h2>Have you ever sold recyclables for money?</h2>
-              <fieldset class="field">
-                <legend class="visually-hidden">Sold recyclables</legend>
-                <label><input type="radio" name="B4" value="Yes regularly" required /> Yes regularly</label>
-                <label><input type="radio" name="B4" value="Once or twice" /> Once or twice</label>
-                <label><input type="radio" name="B4" value="No" /> No</label>
-              </fieldset>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
-            </section>
-
-            <section class="card step info-block" data-step="info">
-              <p class="step-label">Quick Reference</p>
-              <h2>Quick ways to recycle in Algiers</h2>
-              <p>
-                Paper/cardboard can be given to paper collectors or Ecopap drives. PET bottles and HDPE containers can be handed to local plastic collectors. Metal cans can be taken to scrapyards. Donate clothes and books to local associations. Electronics can be passed to repair shops. Compost food scraps if you have a balcony or yard.
-              </p>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Continue</button>
-              </div>
-            </section>
-
-            <section class="card step" data-step="C1">
-              <p class="step-label">Section C · Barriers &amp; Attitudes</p>
-              <h2>Lack of nearby collection points</h2>
-              <p class="helper">Rate 1–5 (1 = Not a reason, 5 = Very strong reason).</p>
-              <label class="field" for="C1">
-                <span>How strong is this reason for you?</span>
-                <input type="number" id="C1" name="C1" min="1" max="5" required />
-              </label>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
-            </section>
-
-            <section class="card step" data-step="C2">
-              <p class="step-label">Section C · Barriers &amp; Attitudes</p>
-              <h2>Not knowing what can/can’t be recycled</h2>
-              <label class="field" for="C2">
-                <span>Rate this barrier (1–5).</span>
-                <input type="number" id="C2" name="C2" min="1" max="5" required />
-              </label>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
-            </section>
-
-            <section class="card step" data-step="C3">
-              <p class="step-label">Section C · Barriers &amp; Attitudes</p>
-              <h2>Time/effort to separate waste</h2>
-              <label class="field" for="C3">
-                <span>Rate this barrier (1–5).</span>
-                <input type="number" id="C3" name="C3" min="1" max="5" required />
-              </label>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
-            </section>
-
-            <section class="card step" data-step="C4">
-              <p class="step-label">Section C · Barriers &amp; Attitudes</p>
-              <h2>Irregular or unclear municipal services</h2>
-              <label class="field" for="C4">
-                <span>Rate this barrier (1–5).</span>
-                <input type="number" id="C4" name="C4" min="1" max="5" required />
-              </label>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
-            </section>
-
-            <section class="card step" data-step="C5">
-              <p class="step-label">Section C · Barriers &amp; Attitudes</p>
-              <h2>Hygiene concerns (smell, animals, storage)</h2>
-              <label class="field" for="C5">
-                <span>Rate this barrier (1–5).</span>
-                <input type="number" id="C5" name="C5" min="1" max="5" required />
-              </label>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
-            </section>
-
-            <section class="card step" data-step="C6">
-              <p class="step-label">Section C · Barriers &amp; Attitudes</p>
-              <h2>How important is recycling to you?</h2>
-              <label class="field" for="C6">
-                <span>Rate the importance (1–5).</span>
-                <input type="number" id="C6" name="C6" min="1" max="5" required />
-              </label>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
-            </section>
-
-            <section class="card step" data-step="D1">
-              <p class="step-label">Section D · Feasibility</p>
-              <h2>Weekly neighborhood collection day</h2>
-              <div class="dual-input">
-                <label>Usefulness <input type="number" name="D1A" min="1" max="5" required /></label>
-                <label>Likelihood <input type="number" name="D1B" min="1" max="5" required /></label>
-              </div>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
-            </section>
-
-            <section class="card step" data-step="D2">
-              <p class="step-label">Section D · Feasibility</p>
-              <h2>School or mosque drop-off for clothes/books</h2>
-              <div class="dual-input">
-                <label>Usefulness <input type="number" name="D2A" min="1" max="5" required /></label>
-                <label>Likelihood <input type="number" name="D2B" min="1" max="5" required /></label>
-              </div>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
-            </section>
-
-            <section class="card step" data-step="D3">
-              <p class="step-label">Section D · Feasibility</p>
-              <h2>Payment program for PET bottles/cans</h2>
-              <div class="dual-input">
-                <label>Usefulness <input type="number" name="D3A" min="1" max="5" required /></label>
-                <label>Likelihood <input type="number" name="D3B" min="1" max="5" required /></label>
-              </div>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
-            </section>
-
-            <section class="card step" data-step="D4">
-              <p class="step-label">Section D · Feasibility</p>
-              <h2>Free mini compost bins for households</h2>
-              <div class="dual-input">
-                <label>Usefulness <input type="number" name="D4A" min="1" max="5" required /></label>
-                <label>Likelihood <input type="number" name="D4B" min="1" max="5" required /></label>
-              </div>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
-            </section>
-
-            <section class="card step" data-step="D5">
-              <p class="step-label">Section D · Feasibility</p>
-              <h2>WhatsApp/Facebook recycling announcement group</h2>
-              <div class="dual-input">
-                <label>Usefulness <input type="number" name="D5A" min="1" max="5" required /></label>
-                <label>Likelihood <input type="number" name="D5B" min="1" max="5" required /></label>
-              </div>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
-            </section>
-
-            <section class="card step" data-step="D6">
-              <p class="step-label">Section D · Feasibility</p>
-              <h2>Student recycling ambassadors</h2>
-              <div class="dual-input">
-                <label>Usefulness <input type="number" name="D6A" min="1" max="5" required /></label>
-                <label>Likelihood <input type="number" name="D6B" min="1" max="5" required /></label>
-              </div>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
-            </section>
-
-            <section class="card step" data-step="E1">
-              <p class="step-label">Section E · Final feedback</p>
-              <h2>Would you recycle more if regular pickup or drop-off existed?</h2>
-              <fieldset class="field">
-                <legend class="visually-hidden">Would you recycle more?</legend>
-                <label><input type="radio" name="E1" value="Yes definitely" required /> Yes definitely</label>
-                <label><input type="radio" name="E1" value="Maybe" /> Maybe</label>
-                <label><input type="radio" name="E1" value="No" /> No</label>
-              </fieldset>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
-            </section>
-
-            <section class="card step" data-step="E2">
-              <p class="step-label">Section E · Final feedback</p>
-              <h2>Would you help with a recycling drive?</h2>
-              <p class="helper">Select any tasks you could support.</p>
-              <fieldset class="field">
-                <legend class="visually-hidden">Help with recycling drive</legend>
-                <label><input type="checkbox" name="E2" value="Put posters in my building" /> Put posters in my building</label>
-                <label><input type="checkbox" name="E2" value="Help collect items monthly" /> Help collect items monthly</label>
-                <label><input type="checkbox" name="E2" value="Host a drop-off box at my home" /> Host a drop-off box at my home</label>
-                <label><input type="checkbox" name="E2" value="I cannot help" /> I cannot help</label>
-              </fieldset>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
-            </section>
-
-            <section class="card step" data-step="E3">
-              <p class="step-label">Section E · Final feedback</p>
-              <h2>Additional suggestions</h2>
-              <label class="field" for="suggestions">
-                <span>Share any extra ideas or comments.</span>
-                <textarea id="suggestions" name="E3" rows="4"></textarea>
-              </label>
-              <div class="nav-buttons">
-                <button type="button" class="prev-step">Back</button>
-                <button type="button" class="next-step">Next</button>
-              </div>
-            </section>
-
-            <section class="card step final-step" data-step="submit">
-              <h2>Submit your answers</h2>
-              <p>Thanks for taking the time. You can go back to review before sending.</p>
-              <button type="submit">Submit Survey</button>
-              <p id="form-message" role="alert"></p>
-              <div class="nav-buttons secondary">
-                <button type="button" class="prev-step">Back</button>
-              </div>
-            </section>
-          </div>
-        </fieldset>
-      </form>
-    </main>
-
-    <div class="modal" id="success-modal" aria-hidden="true">
-      <div class="modal__content">
-        <p>Thank you! Your response has been recorded.</p>
-        <button type="button" id="close-modal">Close</button>
-      </div>
+        <footer>
+            <p>© 2025 Eco-Survey DZ. All rights reserved.</p>
+        </footer>
     </div>
 
-    <footer class="footer">
-      <p>Student research project · Algiers · 2025</p>
-    </footer>
+    <script src="app.js"></script>
+</body>
 
-    <script src="script.js"></script>
-  </body>
 </html>
-
