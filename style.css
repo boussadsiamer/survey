@@ -3,11 +3,14 @@
 :root {
     --bg-color: #F0F0F0;
     --text-color: #000000;
-    --accent-primary: #0000FF; /* Hyperlink Blue */
-    --accent-secondary: #C0C0C0; /* Silver */
-    --success-color: #39FF14; /* Neon Green */
+    --accent-primary: #0000FF;
+    /* Hyperlink Blue */
+    --accent-secondary: #C0C0C0;
+    /* Silver */
+    --success-color: #39FF14;
+    /* Neon Green */
     --border-color: #000000;
-    
+
     --font-header: 'Courier Prime', 'Courier New', monospace;
     --font-body: 'Verdana', 'Tahoma', sans-serif;
 }
@@ -29,10 +32,19 @@ body {
     max-width: 600px;
     background: white;
     border: 1px solid var(--border-color);
-    box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     min-height: 500px;
+    transition: all 0.3s ease;
+}
+
+.app-container.maximized {
+    width: 100%;
+    max-width: none;
+    height: 100vh;
+    border: none;
+    border-radius: 0;
 }
 
 .window-header {
@@ -86,7 +98,9 @@ main {
 }
 
 /* Typography */
-h1, h2, h3 {
+h1,
+h2,
+h3 {
     font-family: var(--font-header);
     margin-top: 0;
     color: var(--accent-primary);
@@ -157,7 +171,8 @@ p {
     border-color: var(--accent-primary);
 }
 
-input[type="radio"], input[type="checkbox"] {
+input[type="radio"],
+input[type="checkbox"] {
     accent-color: var(--accent-primary);
     width: 16px;
     height: 16px;

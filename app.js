@@ -28,7 +28,9 @@ const els = {
     questionText: document.getElementById('question-text'),
     questionContext: document.getElementById('question-context'),
     optionsContainer: document.getElementById('options-container'),
-    progressBar: document.getElementById('progress-bar')
+    progressBar: document.getElementById('progress-bar'),
+    appContainer: document.querySelector('.app-container'),
+    maximizeBtn: document.getElementById('maximize-btn')
 };
 
 // 4. Question Data
@@ -51,14 +53,20 @@ const questionsData = [
         id: "grocery_carrier",
         text: "How do you carry your groceries?",
         type: "multiple_choice",
-        options: ["Plastic Bags (from seller)", "Reusable (Couffin/Tote)", "Mix of both"],
-        context: "The 'Couffin' is a traditional eco-friendly habit making a comeback."
+        options: ["Plastic Bags (from seller)", "Reusable (Couffa)", "Mix of both"],
+        context: "The 'Couffa' is a traditional eco-friendly habit making a comeback."
     },
     {
-        id: "water_tank",
-        text: "Do you have a water tank (citerne) at home? Does it make you more conscious of your water usage?",
+    id: "water_tank_have",
+    text: "Do you have a water tank (citerne) at home?",
+    type: "yes_no",
+    context: "Many Algerian households use citernes due to inconsistent water supply."
+    },
+    {
+        id: "water_tank_care",
+        text: "Does the water tank make you more conscious of your water usage?",
         type: "yes_no",
-        context: "Intermittent water supply makes people more aware of conservation."
+        context: "Some people with water tanks become more aware of consumption, others don't."
     },
     {
         id: "returnable_bottles",
@@ -253,6 +261,11 @@ function init() {
     els.startBtn.addEventListener('click', startSurvey);
     els.nextBtn.addEventListener('click', nextQuestion);
     els.prevBtn.addEventListener('click', prevQuestion);
+    els.maximizeBtn.addEventListener('click', toggleMaximize);
+}
+
+function toggleMaximize() {
+    els.appContainer.classList.toggle('maximized');
 }
 
 function startSurvey() {
@@ -377,8 +390,39 @@ function handleInput() {
 }
 
 function nextQuestion() {
-    if (state.currentQuestionIndex < state.questions.length - 1) {
-        state.currentQuestionIndex++;
+    const q = state.questions[state.currentQuestionIndex];
+
+    // Save current answer
+    const val = state.answers[q.id];
+    if (!val) return; // shouldn't happen because Next is disabled
+
+    // CONDITIONAL SKIP
+    if (q.id === "water_tank_have") {
+        if (val === "No") {
+            // Skip "water_tank_care"
+            // Find the index of that question in the array
+            const skipIndex = state.questions.findIndex(
+                x => x.id === "water_tank_care"
+            );
+
+            // If next question *is* that question, skip it
+            if (skipIndex === state.currentQuestionIndex + 1) {
+                state.currentQuestionIndex += 2;
+                if (state.currentQuestionIndex < state.questions.length) {
+                    renderQuestion();
+                    return;
+                } else {
+                    finishSurvey();
+                    return;
+                }
+            }
+        }
+    }
+
+    // Normal case
+    state.currentQuestionIndex++;
+
+    if (state.currentQuestionIndex < state.questions.length) {
         renderQuestion();
     } else {
         finishSurvey();
@@ -388,7 +432,7 @@ function nextQuestion() {
 function prevQuestion() {
     if (state.currentQuestionIndex > 0) {
         state.currentQuestionIndex--;
-        renderQuestion();
+        renderQuestion();  
     }
 }
 
@@ -417,7 +461,8 @@ async function finishSurvey() {
 
         views.survey.classList.add('hidden');
         views.results.classList.remove('hidden');
-        renderResults();
+
+        // renderResults(); // Analysis removed for now
 
     } catch (error) {
         console.error("Error saving: ", error);
@@ -427,54 +472,8 @@ async function finishSurvey() {
     }
 }
 
-async function renderResults() {
-    // Placeholder for chart rendering
-    const ctx = document.getElementById('resultsChart').getContext('2d');
-
-    // Fetch some real data for a simple chart (e.g., Bread Habits)
-    const SurveySubmission = Parse.Object.extend("SurveySubmission");
-    const query = new Parse.Query(SurveySubmission);
-    query.limit(1000);
-
-    try {
-        const results = await query.find();
-
-        // Calculate stats for Bread
-        const breadStats = { "Trash (One Bag)": 0, "Give to animals/Shepherd": 0, "Reuse (Cooking)": 0 };
-
-        results.forEach(r => {
-            const ans = r.get("bread_habit");
-            if (breadStats[ans] !== undefined) breadStats[ans]++;
-        });
-
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(breadStats),
-                datasets: [{
-                    label: 'Bread Habits',
-                    data: Object.values(breadStats),
-                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-                    borderWidth: 1,
-                    borderColor: '#000'
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { display: false },
-                    title: { display: true, text: 'What Algiers does with leftover bread' }
-                },
-                scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
-                }
-            }
-        });
-
-    } catch (error) {
-        console.error("Error fetching results:", error);
-    }
-}
+// Analysis removed for now
+// async function renderResults() { ... }
 
 // Start
 init();
