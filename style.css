@@ -219,3 +219,33 @@ footer {
     width: 0%;
     transition: width 0.3s ease;
 }
+/* --- RTL & Language Support --- */
+
+/* RTL Mode (for Arabic) */
+body.rtl-mode {
+    direction: rtl;
+    text-align: right;
+    font-family: 'Tahoma', 'Segoe UI', sans-serif; /* Better Arabic support */
+}
+
+/* Flip flex items in RTL */
+body.rtl-mode .window-header,
+body.rtl-mode .nav-controls {
+    flex-direction: row-reverse;
+}
+
+body.rtl-mode .window-controls {
+    flex-direction: row-reverse;
+}
+
+/* Fix radio button alignment in RTL */
+body.rtl-mode .option-label {
+    flex-direction: row-reverse; /* Put radio circle on the right */
+    justify-content: flex-end;
+}
+
+/* Ensure margins look right in RTL */
+body.rtl-mode .option-label input {
+    margin-left: 10px;
+    margin-right: 0;
+}

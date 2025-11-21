@@ -37,12 +37,18 @@
                 <div class="content-box">
                     <h1>Welcome</h1>
                     <p>Help us understand waste habits in Algeria.</p>
-                    <p>Your data helps build a cleaner future.</p>
-                    <br>
+                    
+                    <div class="language-controls" style="display: flex; gap: 10px; justify-content: center; margin: 20px 0;">
+                        <button onclick="setLanguage('en')" class="retro-btn">🇬🇧 English</button>
+                        <button onclick="setLanguage('fr')" class="retro-btn">🇫🇷 Français</button>
+                        <button onclick="setLanguage('ar')" class="retro-btn">🇩🇿 العربية</button>
+                    </div>
+
                     <button id="start-btn" class="retro-btn">Start Survey</button>
                 </div>
             </section>
 
+            
             <!-- View 2: Survey -->
             <section id="survey-view" class="hidden">
                 <div class="progress-bar-container">
