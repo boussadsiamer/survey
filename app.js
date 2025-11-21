@@ -70,7 +70,7 @@ const questionsData = [
     },
     {
         id: "returnable_bottles",
-        text: "Do you prefer buying returnable glass bottles (consigne) over plastic ones?",
+        text: "Do you prefer buying returnable glass bottles (hamoud) over plastic ones?",
         type: "yes_no",
         context: "None"
     },
@@ -84,7 +84,7 @@ const questionsData = [
     },
     {
         id: "meal_planning",
-        text: "Do you plan meals before shopping?",
+        text: "How often do you plan meals before shopping?",
         type: "frequency",
         context: "None"
     },
@@ -118,7 +118,7 @@ const questionsData = [
         id: "cleaning_method",
         text: "How is the floor or car usually washed?",
         type: "multiple_choice",
-        options: ["Hose (Tuyau - Running water)", "Bucket (S'tla)"],
+        options: ["Hose (Tiyo - Running water)", "Bucket"],
         context: "None"
     },
     {
@@ -132,7 +132,7 @@ const questionsData = [
     {
         id: "standby_hours",
         text: "How many hours per day do you leave your TV/computer on standby?",
-        type: "number",
+        type: "number", // cap at 24
         context: "None"
     },
     {
@@ -167,7 +167,7 @@ const questionsData = [
         id: "separation_willingness",
         text: "Would you separate your waste if distinct bins were available in your neighborhood?",
         type: "yes_no",
-        context: "Willingness check for future infrastructure."
+        context: "None"
     },
     {
         id: "container_reuse",
@@ -242,7 +242,7 @@ const questionsData = [
         id: "biggest_problem",
         text: "Which type of waste do you believe is the biggest problem in Algeria?",
         type: "multiple_choice",
-        options: ["Plastic", "Food Waste", "Water Waste", "Industrial Waste", "Electronic Waste"],
+        options: ["Plastic", "Food Waste", "Water Waste", "Industrial Waste", "Electronic Waste"], //allow multiple choices to be selected (2)
         context: "None"
     },
 
