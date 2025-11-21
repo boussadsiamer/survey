@@ -57,10 +57,10 @@ const questionsData = [
         context: "The 'Couffa' is a traditional eco-friendly habit making a comeback."
     },
     {
-    id: "water_tank_have",
-    text: "Do you have a water tank (citerne) at home?",
-    type: "yes_no",
-    context: "Many Algerian households use citernes due to inconsistent water supply."
+        id: "water_tank_have",
+        text: "Do you have a water tank (citerne) at home?",
+        type: "yes_no",
+        context: "Many Algerian households use citernes due to inconsistent water supply."
     },
     {
         id: "water_tank_care",
@@ -132,7 +132,8 @@ const questionsData = [
     {
         id: "standby_hours",
         text: "How many hours per day do you leave your TV/computer on standby?",
-        type: "number", // cap at 24
+        type: "number",
+        max: 24,
         context: "None"
     },
     {
@@ -242,8 +243,10 @@ const questionsData = [
         id: "biggest_problem",
         text: "Which type of waste do you believe is the biggest problem in Algeria?",
         type: "multiple_choice",
-        options: ["Plastic", "Food Waste", "Water Waste", "Industrial Waste", "Electronic Waste"], //allow multiple choices to be selected (2)
-        context: "None"
+        options: ["Plastic", "Food Waste", "Water Waste", "Industrial Waste", "Electronic Waste"],
+        multiSelect: true,
+        maxSelections: 2,
+        context: "Choose 2 from these options"
     },
 
     // Section 7: Government & Community
@@ -290,17 +293,18 @@ function renderQuestion() {
 
     // Handle different types
     if (q.type === 'yes_no') {
-        renderOption('Yes');
-        renderOption('No');
+        renderOption('Yes', 'radio');
+        renderOption('No', 'radio');
     } else if (q.type === 'multiple_choice' && q.options) {
-        q.options.forEach(opt => renderOption(opt));
+        const inputType = q.multiSelect ? 'checkbox' : 'radio';
+        q.options.forEach(opt => renderOption(opt, inputType));
     } else if (q.type === 'frequency') {
         const freqOptions = ["Always", "Often", "Sometimes", "Rarely", "Never"];
-        freqOptions.forEach(opt => renderOption(opt));
+        freqOptions.forEach(opt => renderOption(opt, 'radio'));
     } else if (q.type === 'scale_1_5') {
         renderScale();
     } else if (q.type === 'number') {
-        renderNumberInput();
+        renderNumberInput(q.max);
     }
 
     // Restore previous answer if exists
@@ -309,6 +313,12 @@ function renderQuestion() {
         if (q.type === 'number') {
             const input = els.optionsContainer.querySelector('input[type="number"]');
             if (input) input.value = savedAnswer;
+        } else if (Array.isArray(savedAnswer)) {
+            // Handle multi-select restoration
+            savedAnswer.forEach(val => {
+                const checkbox = els.optionsContainer.querySelector(`input[value="${val}"]`);
+                if (checkbox) checkbox.checked = true;
+            });
         } else {
             const radio = els.optionsContainer.querySelector(`input[value="${savedAnswer}"]`);
             if (radio) radio.checked = true;
@@ -327,12 +337,12 @@ function renderQuestion() {
     }
 }
 
-function renderOption(label) {
+function renderOption(label, type) {
     const div = document.createElement('div');
     div.className = 'option-item';
     div.innerHTML = `
         <label class="option-label">
-            <input type="radio" name="answer" value="${label}" onchange="handleInput()">
+            <input type="${type}" name="answer" value="${label}" onchange="handleInput()">
             ${label}
         </label>
     `;
@@ -360,11 +370,12 @@ function renderScale() {
     els.optionsContainer.appendChild(container);
 }
 
-function renderNumberInput() {
+function renderNumberInput(max) {
     const div = document.createElement('div');
     div.className = 'option-item';
+    const maxAttr = max ? `max="${max}"` : '';
     div.innerHTML = `
-        <input type="number" id="number-input" placeholder="0" min="0" oninput="handleInput()">
+        <input type="number" id="number-input" placeholder="0" min="0" ${maxAttr} oninput="handleInput()">
     `;
     els.optionsContainer.appendChild(div);
 }
@@ -375,7 +386,33 @@ function handleInput() {
 
     if (q.type === 'number') {
         const input = document.getElementById('number-input');
-        if (input.value !== '') val = input.value;
+        if (input.value !== '') {
+            let num = parseFloat(input.value);
+            if (q.max && num > q.max) {
+                num = q.max;
+                input.value = num; // Enforce max visually
+            }
+            val = input.value;
+        }
+    } else if (q.multiSelect) {
+        // Handle multi-select
+        const checkedBoxes = Array.from(document.querySelectorAll('input[name="answer"]:checked'));
+
+        if (q.maxSelections && checkedBoxes.length > q.maxSelections) {
+            // Uncheck the last one if limit exceeded (or prevent checking - here we just uncheck the one that triggered it if possible, but easier to just slice)
+            // Actually, better UX is to prevent checking the 3rd one.
+            // Since this runs onchange, the change already happened. We need to revert it.
+            // The last one clicked is hard to track without event arg. 
+            // Simple approach: keep first N.
+            checkedBoxes.forEach((box, index) => {
+                if (index >= q.maxSelections) box.checked = false;
+            });
+            // Re-query valid ones
+            val = Array.from(document.querySelectorAll('input[name="answer"]:checked')).map(cb => cb.value);
+        } else {
+            val = checkedBoxes.map(cb => cb.value);
+        }
+        if (val.length === 0) val = null; // Require at least one? Or allow empty? Usually require one.
     } else {
         const checked = document.querySelector('input[name="answer"]:checked');
         if (checked) val = checked.value;
@@ -385,6 +422,7 @@ function handleInput() {
         state.answers[q.id] = val;
         els.nextBtn.classList.remove('disabled');
     } else {
+        // Only disable if it's required. Assuming all are required for now.
         els.nextBtn.classList.add('disabled');
     }
 }
@@ -432,7 +470,7 @@ function nextQuestion() {
 function prevQuestion() {
     if (state.currentQuestionIndex > 0) {
         state.currentQuestionIndex--;
-        renderQuestion();  
+        renderQuestion();
     }
 }
 
@@ -448,7 +486,9 @@ async function finishSurvey() {
     for (const [key, value] of Object.entries(state.answers)) {
         // Convert numbers if needed
         const numVal = Number(value);
-        if (!isNaN(numVal) && state.questions.find(q => q.id === key && (q.type === 'number' || q.type === 'scale_1_5'))) {
+        if (Array.isArray(value)) {
+            submission.set(key, value.join(', '));
+        } else if (!isNaN(numVal) && state.questions.find(q => q.id === key && (q.type === 'number' || q.type === 'scale_1_5'))) {
             submission.set(key, numVal);
         } else {
             submission.set(key, value);
@@ -461,8 +501,6 @@ async function finishSurvey() {
 
         views.survey.classList.add('hidden');
         views.results.classList.remove('hidden');
-
-        // renderResults(); // Analysis removed for now
 
     } catch (error) {
         console.error("Error saving: ", error);
